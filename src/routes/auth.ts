@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { registerCtrl, loginCtrl } from "../controllers/auth.ctrl";
+import { validateAuth } from "../validators/auth.valid";
 
 const router = Router();
 
@@ -11,6 +12,6 @@ router.post("/register", registerCtrl);
 /**
  * http://localhost:3010/auth/login [POST]
  */
-router.post("/login", loginCtrl);
+router.post("/login", validateAuth, loginCtrl);
 
 export { router };
