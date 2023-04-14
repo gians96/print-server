@@ -9,20 +9,26 @@ const registerCtrl = async ({ body }: Request, res: Response) => {
   } catch (error) {
     handleHttp(res, "ERROR_REGISTER_AUTH");
   }
-
 };
-
+const getCtrl = async ({ body }: Request, res: Response) => {
+  try {
+   
+    res.send("<h1>Auth</h1>");
+  } catch (error) {
+    handleHttp(res, "ERROR_REGISTER_AUTH");
+  }
+};
 const loginCtrl = async ({ body }: Request, res: Response) => {
   try {
     const { email, password } = body;
     const response = await loginUser({ email, password });
-    if (response === "PASSWORD_INCORRECT") return res.status(403).send(response);
+    if (response === "PASSWORD_INCORRECT")
+      return res.status(403).send(response);
 
     res.status(200).send(response);
   } catch (error) {
     handleHttp(res, "ERROR_LOGIN_AUTH");
   }
-
 };
 
-export { registerCtrl, loginCtrl };
+export { registerCtrl, loginCtrl, getCtrl };
