@@ -3,7 +3,7 @@ import { testCtrl } from "../controllers/test.ctrl";
 const router = Router();
 
 /*
- * http://localhost:3010/auth/register [POST]
+ * http://localhost:3010/test/register [POST]
  */
 router.post("/register", testCtrl);
 

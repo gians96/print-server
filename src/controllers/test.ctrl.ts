@@ -7,7 +7,7 @@ const testCtrl = async ({ body }: Request, res: Response) => {
     const response = await registerTest(body);
     res.status(200).send(response);
   } catch (error) {
-    handleHttp(res, "ERROR_TEST");
+    res.status(500).send(error);
   }
 
 };
