@@ -21,12 +21,12 @@ const registerSpecialityCtrl = async ({ body }: Request, res: Response) => {
 };
 
 const getListSpecialityCtrl = async ({ body }: Request, res: Response) => {
+  const database = process.env.DATABASE_URL;
   try {
     const response = await getListSpeciality();
-    const database = process.env.DATABASE_URL;
     res.status(200).send({ response, database });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({ error, database });
   }
 };
 
