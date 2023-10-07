@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import "dotenv/config";
 import {
   registerSpeciality,
   getListSpeciality,
@@ -22,7 +23,8 @@ const registerSpecialityCtrl = async ({ body }: Request, res: Response) => {
 const getListSpecialityCtrl = async ({ body }: Request, res: Response) => {
   try {
     const response = await getListSpeciality();
-    res.status(200).send(response);
+    const database = process.env.DATABASE_URL;
+    res.status(200).send({ response, database });
   } catch (error) {
     res.status(500).send(error);
   }
