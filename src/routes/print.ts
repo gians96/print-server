@@ -9,7 +9,7 @@ const router = Router();
  */
 router.post("/", printCtrl);
 
-router.post("/1", printTest1Ctrl);
+router.post("/clean", printTest1Ctrl);
 router.post("/2", printTest2Ctrl);
 
 export { router };

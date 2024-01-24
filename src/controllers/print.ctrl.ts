@@ -1,6 +1,76 @@
 import { Request, Response } from "express";
 import { handleHttp } from "../utils/error.handle";
-
+import type { PrinterConfig } from '../interfaces/PrinterConfig.interface'
+const products = [
+    {
+        id: 4,
+        name: "1/2 pollo + papas + ensalada + 2 gaseosas",
+        note: "nota 1",
+        price: 40,
+        imageUrl:
+            "https://restaurant.nt-suite.com/storage/uploads/items/12-pollo-papas-ensal-20230501202920.jpg",
+        itemCode: null,
+        quantity: 1,
+        statusBar: 0,
+        categoryId: null,
+        internalId: "2",
+        unitTypeId: "NIU",
+        statusKitchen: 0,
+        currencyTypeSymbol: "S/",
+        sale_affectation_igv_type_id: "10"
+    },
+    {
+        id: 3,
+        name: "1/2 pollo + papas + ensalada",
+        note: "",
+        price: 34,
+        imageUrl:
+            "https://restaurant.nt-suite.com/storage/uploads/items/12-pollo-papas-ensal-20230501202835.jpg",
+        itemCode: null,
+        quantity: 4,
+        statusBar: 0,
+        categoryId: 1,
+        internalId: "1",
+        unitTypeId: "NIU",
+        statusKitchen: 0,
+        currencyTypeSymbol: "S/",
+        sale_affectation_igv_type_id: "10"
+    },
+    {
+        id: 9,
+        name: "Agua mineral",
+        note: "",
+        price: 2,
+        imageUrl:
+            "https://restaurant.nt-suite.com/logo/imagen-no-disponible.jpg",
+        itemCode: null,
+        quantity: 1,
+        statusBar: 0,
+        categoryId: null,
+        internalId: "00009",
+        unitTypeId: "NIU",
+        statusKitchen: 0,
+        currencyTypeSymbol: "S/",
+        sale_affectation_igv_type_id: "10"
+    },
+    {
+        id: 10,
+        name: "ceviche de corvina",
+        note: "",
+        price: 22,
+        imageUrl:
+            "https://restaurant.nt-suite.com/logo/imagen-no-disponible.jpg",
+        itemCode: null,
+        quantity: 1,
+        statusBar: 0,
+        categoryId: null,
+        internalId: "00010",
+        unitTypeId: "NIU",
+        statusKitchen: 0,
+        currencyTypeSymbol: "S/",
+        sale_affectation_igv_type_id: "10"
+    }
+];
 const printCtrl = async ({ body }: Request, res: Response) => {
     try {
         // const response = await registerNewUser(body);
@@ -16,76 +86,7 @@ const printCtrl = async ({ body }: Request, res: Response) => {
 
         printer.alignCenter();
 
-        const products = [
-            {
-                id: 4,
-                name: "1/2 pollo + papas + ensalada + 2 gaseosas",
-                note: "nota 1",
-                price: 40,
-                imageUrl:
-                    "https://restaurant.nt-suite.com/storage/uploads/items/12-pollo-papas-ensal-20230501202920.jpg",
-                itemCode: null,
-                quantity: 1,
-                statusBar: 0,
-                categoryId: null,
-                internalId: "2",
-                unitTypeId: "NIU",
-                statusKitchen: 0,
-                currencyTypeSymbol: "S/",
-                sale_affectation_igv_type_id: "10"
-            },
-            {
-                id: 3,
-                name: "1/2 pollo + papas + ensalada",
-                note: "",
-                price: 34,
-                imageUrl:
-                    "https://restaurant.nt-suite.com/storage/uploads/items/12-pollo-papas-ensal-20230501202835.jpg",
-                itemCode: null,
-                quantity: 4,
-                statusBar: 0,
-                categoryId: 1,
-                internalId: "1",
-                unitTypeId: "NIU",
-                statusKitchen: 0,
-                currencyTypeSymbol: "S/",
-                sale_affectation_igv_type_id: "10"
-            },
-            {
-                id: 9,
-                name: "Agua mineral",
-                note: "",
-                price: 2,
-                imageUrl:
-                    "https://restaurant.nt-suite.com/logo/imagen-no-disponible.jpg",
-                itemCode: null,
-                quantity: 1,
-                statusBar: 0,
-                categoryId: null,
-                internalId: "00009",
-                unitTypeId: "NIU",
-                statusKitchen: 0,
-                currencyTypeSymbol: "S/",
-                sale_affectation_igv_type_id: "10"
-            },
-            {
-                id: 10,
-                name: "ceviche de corvina",
-                note: "",
-                price: 22,
-                imageUrl:
-                    "https://restaurant.nt-suite.com/logo/imagen-no-disponible.jpg",
-                itemCode: null,
-                quantity: 1,
-                statusBar: 0,
-                categoryId: null,
-                internalId: "00010",
-                unitTypeId: "NIU",
-                statusKitchen: 0,
-                currencyTypeSymbol: "S/",
-                sale_affectation_igv_type_id: "10"
-            }
-        ];
+
         const header = [
             {
                 text: "CANT",
@@ -229,39 +230,61 @@ const printCtrl = async ({ body }: Request, res: Response) => {
 }
 const printTest1Ctrl = async ({ body }: Request, res: Response) => {
     try {
+        const configPrinter: PrinterConfig = body.configPrinter
+
+
         const ThermalPrinter = require("node-thermal-printer").printer;
         const PrinterTypes = require("node-thermal-printer").types;
 
         let printer = new ThermalPrinter({
             type: PrinterTypes.EPSON,
-            interface: 'tcp://192.168.18.100'
+            interface: 'tcp://' + configPrinter.ip
         });
 
+        let isConnected = await printer.isPrinterConnected();
+        if (!isConnected) return res.status(500).send({ status: false, msg: "Impresora con ip: " + configPrinter.ip + " no encontrada." })
         printer.alignCenter();
-        printer.println("Hello world");
-        printer.leftRight("Left", "Right");                         // Prints text left and right
-        printer.table(["One", "Two", "Three"]);
+        printer.setTextDoubleHeight();
+        printer.setTextDoubleWidth();
+        printer.println("COMANDA");
+        printer.println("");
+        printer.tableCustom(
+            [
+                { text: "AMBIENTE:", align: "LEFT", width: 0.25 },
+                { text: "2", align: "LEFT", width: 0.25 },
+            ]);
+        printer.tableCustom(
+            [
+                { text: "MOZO:", align: "LEFT", width: 0.25 },
+                { text: "GIANS96", align: "LEFT", width: 0.25, bold: true },
+            ]);
+        printer.tableCustom(
+            [
+                { text: "MESA:", align: "LEFT", width: 0.25 },
+                { text: "5", align: "LEFT", width: 0.25, bold: true },
+            ]);
+        printer.tableCustom(
+            [
+                { text: "PREPARA:", align: "LEFT", width: 0.25 },
+                { text: "COCINA", align: "LEFT", width: 0.25, bold: true },
+            ]);
         printer.drawLine();
-        // printer.setTextSize(7, 7);          // Prints table equally
-        printer.tableCustom([                                       // Prints table with custom settings (text, align, width, cols, bold)
-            { text: "Left", align: "LEFT", width: 0.5 },
-            { text: "Center", align: "CENTER", width: 0.25, bold: true },
-            { text: "Right", align: "RIGHT", cols: 8 }
-        ]);
-
-        // await printer.printImage('./assets/olaii-logo-black.png')
+        printer.alignLeft();
+        printer.setTypeFontB();
+        products.forEach((element, index) => {
+            printer.println((index + 1) + ") [" + element.quantity + "] " + element.name);
+            if (element.note) {
+                printer.println("N: " + element.note);
+            }
+            printer.newLine();
+        });
         printer.cut();
-
         try {
             let execute = printer.execute()
-            console.log("Print done!");
             res.status(200).send("yeaaah")
         } catch (error) {
             console.error("Print failed:", error);
         }
-
-
-
     } catch (error) {
         handleHttp(res, "ERROR_REGISTER_AUTH");
     }
