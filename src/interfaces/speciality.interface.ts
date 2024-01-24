@@ -1,8 +1,10 @@
 export interface Specialty {
   id: number;
   name: string;
-  description: string;
+  description?: string;
+  category?: string;
   price: number;
-  type_commission: string;
+  type_commission: "percentage" | "money";
   commission: number;
+  status: boolean;
 }

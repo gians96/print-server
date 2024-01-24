@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  registerSpecialityCtrl,
+  // registerSpecialityCtrl,
   getListSpecialityCtrl,
   getSpecialityCtrl,
   deleteSpecialityCtrl
@@ -10,7 +10,7 @@ const router = Router();
 /*
  * http://localhost:3010/test/register [POST]
  */
-router.post("/register", registerSpecialityCtrl);
+// router.post("/register", registerSpecialityCtrl);
 
 router.get("/", getListSpecialityCtrl);
 
