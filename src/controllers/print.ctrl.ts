@@ -80,7 +80,7 @@ const printCtrl = async ({ body }: Request, res: Response) => {
 
         let printer = new ThermalPrinter({
             type: PrinterTypes.EPSON,
-            interface: 'tcp://192.168.18.100'
+            interface: 'tcp://192.168.1.166'
 
         });
 
