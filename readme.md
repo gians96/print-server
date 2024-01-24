@@ -8,3 +8,5 @@ npm install && npm run  build
 
 ## Run app
 npm run start
+
+#instalar el controlador / driver de la impresora XPrinter
