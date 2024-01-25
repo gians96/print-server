@@ -87,7 +87,12 @@ const printCtrl = async ({ body }: Request, res: Response) => {
         });
 
         let isConnected = await printer.isPrinterConnected();
-        if (!isConnected) return res.status(500).send({ status: false, msg: "Impresora con ip: " + configPrinter.ip + " no encontrada." })
+        for (let i = 0; i < 4; i++) {
+            let isConnected = await printer.isPrinterConnected();
+            // console.log(`Ejecución ${i + 1}: La impresora está ${isConnected ? 'conectada' : 'desconectada'}`);
+            if (isConnected) break
+            await waitExcecute(350);
+        }
         printer.alignCenter();
         printer.setTextDoubleHeight();
         printer.setTextDoubleWidth();
@@ -135,7 +140,7 @@ const printCtrl = async ({ body }: Request, res: Response) => {
     }
 };
 
-const isConnected = async ({ body }: Request, res: Response) => {
+const isConnectedPrint = async ({ body }: Request, res: Response) => {
     try {
         const configPrinter: PrinterConfig = body.configPrinter
 
@@ -147,8 +152,14 @@ const isConnected = async ({ body }: Request, res: Response) => {
             type: PrinterTypes.EPSON,
             interface: 'tcp://' + configPrinter.ip
         });
-
-        let isConnected = await printer.isPrinterConnected();
+        let isConnected = false
+        for (let i = 0; i < 4; i++) {
+            isConnected = await printer.isPrinterConnected();
+            // console.log(`Ejecución ${i + 1}: La impresora está ${isConnected ? 'conectada' : 'desconectada'}`);
+            if (isConnected) break
+            await waitExcecute(350);
+        }
+        // let isConnected = await printer.isPrinterConnected();
         if (!isConnected) return res.status(500).send({ status: false, msg: "Impresora con ip: " + configPrinter.ip + " no encontrada." })
 
         return res.status(200).send({ status: true, msg: "Impresora con ip: " + configPrinter.ip + " conectada." })
@@ -158,5 +169,18 @@ const isConnected = async ({ body }: Request, res: Response) => {
     }
 };
 
+const isConnectedServer = async ({ body }: Request, res: Response) => {
+    try {
+        return res.status(200).send({ status: true, msg: "Servidor conectado" })
 
-export { printCtrl, isConnected };
+    } catch (error) {
+        return res.status(500).send({ status: false, msg: "Servidor no conectado" + error })
+
+    }
+};
+
+function waitExcecute(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export { printCtrl, isConnectedServer, isConnectedPrint };

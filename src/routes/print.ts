@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { printCtrl, isConnected } from "../controllers/print.ctrl";
+import { printCtrl, isConnectedPrint, isConnectedServer } from "../controllers/print.ctrl";
 import { validateAuth } from "../validators/auth.valid";
 
 const router = Router();
@@ -10,7 +10,8 @@ const router = Router();
 
 
 router.post("/start", printCtrl);
-router.post("/connect", isConnected);
+router.post("/connect_print", isConnectedPrint);
+router.post("/connect_server", isConnectedServer);
 
 
 export { router };
