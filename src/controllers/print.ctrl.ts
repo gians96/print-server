@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import { handleHttp } from "../utils/error.handle";
 import type { PrinterConfig } from '../interfaces/PrinterConfig.interface'
 const products = [
@@ -71,166 +71,11 @@ const products = [
         sale_affectation_igv_type_id: "10"
     }
 ];
+
 const printCtrl = async ({ body }: Request, res: Response) => {
     try {
-        // const response = await registerNewUser(body);
-
-        const ThermalPrinter = require("node-thermal-printer").printer;
-        const PrinterTypes = require("node-thermal-printer").types;
-
-        let printer = new ThermalPrinter({
-            type: PrinterTypes.EPSON,
-            interface: 'tcp://192.168.1.166'
-
-        });
-
-        printer.alignCenter();
-
-
-        const header = [
-            {
-                text: "CANT",
-                style: { fontSize: 7, bold: true, alignment: "center" },
-                alignment: "left"
-            },
-            {
-                text: "DESCRIPCION",
-                style: { fontSize: 7, bold: true, alignment: "center" }
-            },
-            {
-                text: "P.UNI",
-                style: { fontSize: 7, bold: true, alignment: "center" }
-            },
-            { text: "TOTAL", style: { fontSize: 7, bold: true, alignment: "center" } }
-        ];
-
-        const variableReactiva = "PRECUENTA";
-
-        const printProductsOfTable = [
-            header,
-            ...products.map(product => {
-                const cantidadXprecio = product.quantity * product.price;
-                return [
-                    {
-                        text: product.quantity.toString(),
-                        style: { fontSize: 7, alignment: "center" }
-                    },
-                    { text: product.name, style: { fontSize: 7, alignment: "left" } },
-                    {
-                        text: product.price.toString(),
-                        style: { fontSize: 7, bold: true, alignment: "center" }
-                    },
-                    {
-                        text: cantidadXprecio.toString(),
-                        style: { fontSize: 7, bold: true, alignment: "center" }
-                    }
-                ];
-            })
-        ];
-
-        const pdfMake = require("pdfmake/build/pdfmake");
-
-        const pdfDocGenerator = pdfMake.createPdf({
-            pageSize: {
-                width: 232.598,
-                height: "auto"
-            },
-            pageMargins: [4, 20, 4, 10],
-            content: [
-                {
-                    text: variableReactiva,
-                    style: { fontSize: 15, bold: true, alignment: "center" },
-                    margin: [0, 0, 0, 5]
-                },
-                {
-                    text: "AMBIENTE: ",
-                    style: { fontSize: 7, bold: true, alignment: "left" },
-                    margin: [0, 0, 0, 5]
-                },
-                {
-                    text: "MESA: ",
-                    style: { fontSize: 7, bold: true, alignment: "left" },
-                    margin: [0, 0, 0, 5]
-                },
-                {
-                    text: "MOZO: ",
-                    style: { fontSize: 7, bold: true, alignment: "left" },
-                    margin: [0, 0, 0, 5]
-                },
-                {
-                    text: `FECHA: ${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`,
-                    margin: [0, 0, 0, 5],
-                    style: { fontSize: 7, bold: true, alignment: "left" }
-                },
-                {
-                    layout: "custom",
-                    table: {
-                        heights: 1,
-                        // widths: "*",
-                        alignment: "center",
-                        body: printProductsOfTable
-                    }
-                },
-                {
-                    text: `TOTAL: S/.100.00`,
-                    margin: [0, 0, 6, 10],
-                    style: { fontSize: 10, bold: true, alignment: "right" }
-                },
-                {
-                    text: `DNI/RUC: `,
-                    margin: [0, 0, 0, 15],
-                    style: { fontSize: 8, bold: true, alignment: "left" }
-                },
-                {
-                    text: `NOMBRES/RAZON SOCIAL:`,
-                    margin: [0, 0, 0, 3],
-                    style: { fontSize: 8, bold: true, alignment: "left" }
-                },
-                ,
-                {
-                    text: ` `,
-                    margin: [0, 0, 0, 0],
-                    style: { fontSize: 8, bold: true, alignment: "left" }
-                }
-            ]
-        });
-
-        try {
-            printer.setBuffer(pdfDocGenerator.getBuffer());
-            printer.println("Hello world: gians96@");
-            printer.leftRight("Left", "Right"); // Prints text left and right
-            printer.table(["One", "Two", "Three"]);
-            printer.tableCustom(
-                [
-                    // Prints table with custom settings (text, align, width, cols, bold)
-                    { text: "Left", align: "LEFT", width: 0.5 },
-                    { text: "Center", align: "CENTER", width: 0.25, bold: true },
-                    { text: "Right", align: "RIGHT", cols: 8 }
-                ],
-                [
-                    // Prints table with custom settings (text, align, width, cols, bold)
-                    { text: "Left", align: "LEFT", width: 0.5 },
-                    { text: "Center", align: "CENTER", width: 0.25, bold: true },
-                    { text: "Right", align: "RIGHT", cols: 8 }
-                ]
-            );
-            // await printer.printImage("./assets/olaii-logo-black.png");
-            printer.cut();
-
-            let execute = printer.execute();
-            console.log("Print done!");
-        } catch (error) {
-            console.error("Print failed:", error);
-        }
-
-        res.status(200).send("echo");
-    } catch (error) {
-        handleHttp(res, "ERROR_REGISTER_AUTH");
-    }
-}
-const printTest1Ctrl = async ({ body }: Request, res: Response) => {
-    try {
         const configPrinter: PrinterConfig = body.configPrinter
+        console.log(body);
 
 
         const ThermalPrinter = require("node-thermal-printer").printer;
@@ -281,29 +126,37 @@ const printTest1Ctrl = async ({ body }: Request, res: Response) => {
         printer.cut();
         try {
             let execute = printer.execute()
-            res.status(200).send("yeaaah")
+            res.status(200).send({ status: true, msg: "impresión exitosa" })
         } catch (error) {
-            console.error("Print failed:", error);
+            res.status(500).send({ status: false, msg: "Error al imprimir: " + error })
         }
+    } catch (error) {
+        handleHttp(res, "ERROR_REGISTER_AUTH" + error);
+    }
+};
+
+const isConnected = async ({ body }: Request, res: Response) => {
+    try {
+        const configPrinter: PrinterConfig = body.configPrinter
+
+
+        const ThermalPrinter = require("node-thermal-printer").printer;
+        const PrinterTypes = require("node-thermal-printer").types;
+
+        let printer = new ThermalPrinter({
+            type: PrinterTypes.EPSON,
+            interface: 'tcp://' + configPrinter.ip
+        });
+
+        let isConnected = await printer.isPrinterConnected();
+        if (!isConnected) return res.status(500).send({ status: false, msg: "Impresora con ip: " + configPrinter.ip + " no encontrada." })
+
+        return res.status(200).send({ status: true, msg: "Impresora con ip: " + configPrinter.ip + " conectada." })
+
     } catch (error) {
         handleHttp(res, "ERROR_REGISTER_AUTH");
     }
 };
 
-const printTest2Ctrl = async ({ body }: Request, res: Response) => {
 
-};
-// const loginCtrl = async ({ body }: Request, res: Response) => {
-//     try {
-//         const { email, password } = body;
-//         const response = await loginUser({ email, password });
-//         if (response === "PASSWORD_INCORRECT")
-//             return res.status(403).send(response);
-
-//         res.status(200).send(response);
-//     } catch (error) {
-//         handleHttp(res, "ERROR_LOGIN_AUTH");
-//     }
-// };
-
-export { printCtrl, printTest1Ctrl, printTest2Ctrl };
+export { printCtrl, isConnected };

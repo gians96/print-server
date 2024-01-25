@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { printCtrl, printTest1Ctrl, printTest2Ctrl } from "../controllers/print.ctrl";
+import { printCtrl, isConnected } from "../controllers/print.ctrl";
 import { validateAuth } from "../validators/auth.valid";
 
 const router = Router();
@@ -7,9 +7,10 @@ const router = Router();
 /*
  * http://localhost:3010/auth/register [POST]
  */
-router.post("/", printCtrl);
 
-router.post("/start", printTest1Ctrl);
-router.post("/2", printTest2Ctrl);
+
+router.post("/start", printCtrl);
+router.post("/connect", isConnected);
+
 
 export { router };
