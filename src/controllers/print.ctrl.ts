@@ -1,6 +1,6 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { handleHttp } from "../utils/error.handle";
-import type { PrinterConfig } from '../interfaces/PrinterConfig.interface'
+import type { ConfigPrinter, Printer } from '../interfaces/PrinterConfig.interface'
 const products = [
     {
         id: 4,
@@ -74,7 +74,7 @@ const products = [
 
 const printCtrl = async ({ body }: Request, res: Response) => {
     try {
-        const configPrinter: PrinterConfig = body.configPrinter
+        const configPrinter: ConfigPrinter = body.configPrinter
         console.log(body);
 
 
@@ -83,16 +83,17 @@ const printCtrl = async ({ body }: Request, res: Response) => {
 
         let printer = new ThermalPrinter({
             type: PrinterTypes.EPSON,
-            interface: 'tcp://' + configPrinter.ip
+            interface: 'tcp://' + configPrinter.ipServerPrint
         });
 
-        let isConnected = await printer.isPrinterConnected();
+        let isConnected = false
         for (let i = 0; i < 4; i++) {
-            let isConnected = await printer.isPrinterConnected();
-            // console.log(`Ejecución ${i + 1}: La impresora está ${isConnected ? 'conectada' : 'desconectada'}`);
+            isConnected = await printer.isPrinterConnected();
             if (isConnected) break
-            await waitExcecute(350);
+            await waitExcecute(30);
         }
+        if (!isConnected) return res.status(400).send({ status: false, msg: "Impresora con ip: " + configPrinter.ipServerPrint + " no encontrada." })
+
         printer.alignCenter();
         printer.setTextDoubleHeight();
         printer.setTextDoubleWidth();
@@ -136,18 +137,16 @@ const printCtrl = async ({ body }: Request, res: Response) => {
             res.status(500).send({ status: false, msg: "Error al imprimir: " + error })
         }
     } catch (error) {
-        handleHttp(res, "ERROR_REGISTER_AUTH" + error);
+        res.status(500).send({ status: false, msg: "Error al imprimir: " + error })
+
     }
 };
 
 const isConnectedPrint = async ({ body }: Request, res: Response) => {
     try {
-        const configPrinter: PrinterConfig = body.configPrinter
-
-
+        const configPrinter: Printer =await body.printer
         const ThermalPrinter = require("node-thermal-printer").printer;
         const PrinterTypes = require("node-thermal-printer").types;
-
         let printer = new ThermalPrinter({
             type: PrinterTypes.EPSON,
             interface: 'tcp://' + configPrinter.ip
@@ -155,17 +154,15 @@ const isConnectedPrint = async ({ body }: Request, res: Response) => {
         let isConnected = false
         for (let i = 0; i < 4; i++) {
             isConnected = await printer.isPrinterConnected();
-            // console.log(`Ejecución ${i + 1}: La impresora está ${isConnected ? 'conectada' : 'desconectada'}`);
             if (isConnected) break
-            await waitExcecute(350);
+            await waitExcecute(30);
         }
-        // let isConnected = await printer.isPrinterConnected();
-        if (!isConnected) return res.status(500).send({ status: false, msg: "Impresora con ip: " + configPrinter.ip + " no encontrada." })
+        if (!isConnected) { return res.status(400).send({ status: false, msg: "Impresora con ip: " + configPrinter.ip + " no encontrada." }) }
 
         return res.status(200).send({ status: true, msg: "Impresora con ip: " + configPrinter.ip + " conectada." })
 
     } catch (error) {
-        handleHttp(res, "ERROR_REGISTER_AUTH");
+        return res.status(500).send({ status: false, msg: "Hubo un error al conectar la impresora: " + error })
     }
 };
 
@@ -175,7 +172,6 @@ const isConnectedServer = async ({ body }: Request, res: Response) => {
 
     } catch (error) {
         return res.status(500).send({ status: false, msg: "Servidor no conectado" + error })
-
     }
 };
 
