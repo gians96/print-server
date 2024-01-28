@@ -72,7 +72,7 @@ const products = [
     }
 ];
 
-const printCtrl = async ({ body }: Request, res: Response) => {
+const printCommand = async ({ body }: Request, res: Response) => {
     try {
         const configPrinter: ConfigPrinter = body.configPrinter
         console.log(body);
@@ -142,9 +142,74 @@ const printCtrl = async ({ body }: Request, res: Response) => {
     }
 };
 
+const printPreAccount = async ({ body }: Request, res: Response) => {
+    try {
+        const configPrinter: ConfigPrinter = body.configPrinter
+        const ThermalPrinter = require("node-thermal-printer").printer;
+        const PrinterTypes = require("node-thermal-printer").types;
+        let printer = new ThermalPrinter({
+            type: PrinterTypes.EPSON,
+            interface: 'tcp://' + configPrinter.ipServerPrint
+        });
+        let isConnected = false
+        for (let i = 0; i < 4; i++) {
+            isConnected = await printer.isPrinterConnected();
+            if (isConnected) break
+            await waitExcecute(30);
+        }
+        if (!isConnected) return res.status(400).send({ status: false, msg: "Impresora con ip: " + configPrinter.ipServerPrint + " no encontrada." })
+
+        printer.alignCenter();
+        printer.setTextDoubleHeight();
+        printer.setTextDoubleWidth();
+        printer.println("COMANDA");
+        printer.println("");
+        printer.tableCustom(
+            [
+                { text: "AMBIENTE:", align: "LEFT", width: 0.25 },
+                { text: "2", align: "LEFT", width: 0.25 },
+            ]);
+        printer.tableCustom(
+            [
+                { text: "MOZO:", align: "LEFT", width: 0.25 },
+                { text: "GIANS96", align: "LEFT", width: 0.25, bold: true },
+            ]);
+        printer.tableCustom(
+            [
+                { text: "MESA:", align: "LEFT", width: 0.25 },
+                { text: "5", align: "LEFT", width: 0.25, bold: true },
+            ]);
+        printer.tableCustom(
+            [
+                { text: "PREPARA:", align: "LEFT", width: 0.25 },
+                { text: "COCINA", align: "LEFT", width: 0.25, bold: true },
+            ]);
+        printer.drawLine();
+        printer.alignLeft();
+        printer.setTypeFontB();
+        products.forEach((element, index) => {
+            printer.println((index + 1) + ") [" + element.quantity + "] " + element.name);
+            if (element.note) {
+                printer.println("N: " + element.note);
+            }
+            printer.newLine();
+        });
+        printer.cut();
+        try {
+            let execute = printer.execute()
+            res.status(200).send({ status: true, msg: "impresión exitosa" })
+        } catch (error) {
+            res.status(500).send({ status: false, msg: "Error al imprimir: " + error })
+        }
+    } catch (error) {
+        res.status(500).send({ status: false, msg: "Error al imprimir: " + error })
+
+    }
+};
+
 const isConnectedPrint = async ({ body }: Request, res: Response) => {
     try {
-        const configPrinter: Printer =await body.printer
+        const configPrinter: Printer = await body.printer
         const ThermalPrinter = require("node-thermal-printer").printer;
         const PrinterTypes = require("node-thermal-printer").types;
         let printer = new ThermalPrinter({
@@ -179,4 +244,4 @@ function waitExcecute(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export { printCtrl, isConnectedServer, isConnectedPrint };
+export { printCommand, printPreAccount, isConnectedServer, isConnectedPrint };
