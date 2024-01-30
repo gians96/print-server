@@ -8,6 +8,8 @@ export interface Table {
     shape: string;
     environment: string;
     waiter: Waiter;
+    tag: Tag;
+
 }
 
 export interface Product {
@@ -19,7 +21,7 @@ export interface Product {
     itemCode: null;
     quantity: number;
     status: number;
-    tag: Waiter[];
+    tag: Tag[];
     categoryId: number | null;
     internalId: string;
     unitTypeId: string;
@@ -27,7 +29,13 @@ export interface Product {
     sale_affectation_igv_type_id: string;
 }
 
+export interface Tag {
+    id: number;
+    name: string;
+}
+
 export interface Waiter {
     id: number;
     name: string;
 }
+

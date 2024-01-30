@@ -1,85 +1,11 @@
 import { Request, Response } from "express";
-import { handleHttp } from "../utils/error.handle";
-import type { ConfigPrinter, Printer, Tag } from '../interfaces/PrinterConfig.interface'
-import { printer } from "node-thermal-printer";
-import { Table } from "../interfaces/Table.interface,";
-const products = [
-    {
-        id: 4,
-        name: "1/2 pollo + papas + ensalada + 2 gaseosas",
-        note: "nota 1",
-        price: 40,
-        imageUrl:
-            "https://restaurant.nt-suite.com/storage/uploads/items/12-pollo-papas-ensal-20230501202920.jpg",
-        itemCode: null,
-        quantity: 1,
-        statusBar: 0,
-        categoryId: null,
-        internalId: "2",
-        unitTypeId: "NIU",
-        statusKitchen: 0,
-        currencyTypeSymbol: "S/",
-        sale_affectation_igv_type_id: "10"
-    },
-    {
-        id: 3,
-        name: "1/2 pollo + papas + ensalada",
-        note: "",
-        price: 34,
-        imageUrl:
-            "https://restaurant.nt-suite.com/storage/uploads/items/12-pollo-papas-ensal-20230501202835.jpg",
-        itemCode: null,
-        quantity: 4,
-        statusBar: 0,
-        categoryId: 1,
-        internalId: "1",
-        unitTypeId: "NIU",
-        statusKitchen: 0,
-        currencyTypeSymbol: "S/",
-        sale_affectation_igv_type_id: "10"
-    },
-    {
-        id: 9,
-        name: "Agua mineral",
-        note: "",
-        price: 2,
-        imageUrl:
-            "https://restaurant.nt-suite.com/logo/imagen-no-disponible.jpg",
-        itemCode: null,
-        quantity: 1,
-        statusBar: 0,
-        categoryId: null,
-        internalId: "00009",
-        unitTypeId: "NIU",
-        statusKitchen: 0,
-        currencyTypeSymbol: "S/",
-        sale_affectation_igv_type_id: "10"
-    },
-    {
-        id: 10,
-        name: "ceviche de corvina",
-        note: "",
-        price: 22,
-        imageUrl:
-            "https://restaurant.nt-suite.com/logo/imagen-no-disponible.jpg",
-        itemCode: null,
-        quantity: 1,
-        statusBar: 0,
-        categoryId: null,
-        internalId: "00010",
-        unitTypeId: "NIU",
-        statusKitchen: 0,
-        currencyTypeSymbol: "S/",
-        sale_affectation_igv_type_id: "10"
-    }
-];
+import type { Printer } from '../interfaces/PrinterConfig.interface'
+import { Table } from "../interfaces/Table.interface";
 
 const printCommand = async ({ body }: Request, res: Response) => {
     try {
         const configPrinter: Printer = body.configPrinter
         const table: Table = body.table
-        const tag: Tag = body.tag
-
         const ThermalPrinter = require("node-thermal-printer").printer;
         const PrinterTypes = require("node-thermal-printer").types;
 
@@ -119,7 +45,7 @@ const printCommand = async ({ body }: Request, res: Response) => {
         printer.tableCustom(
             [
                 { text: "PREPARA:", align: "LEFT", width: 0.25 },
-                { text: tag.name, align: "LEFT", width: 0.25, bold: true },
+                { text: table.tag.name, align: "LEFT", width: 0.25, bold: true },
             ]);
         printer.drawLine();
         printer.alignLeft();
@@ -210,6 +136,7 @@ const printPreAccount = async ({ body }: Request, res: Response) => {
                 { text: product.price, align: "LEFT", cols: 8, width: 0.14 },
                 { text: (product.price * product.quantity), align: "LEFT", cols: 8, width: 0.14 },
             ]);
+            // printer.drawLine();
         });
         printer.drawLine();
         printer.tableCustom([
