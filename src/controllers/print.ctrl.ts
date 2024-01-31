@@ -35,7 +35,7 @@ const printCommand = async ({ body }: Request, res: Response) => {
         printer.tableCustom(
             [
                 { text: "MOZO:", align: "LEFT", width: 0.25 },
-                { text: table.waiter.name ? table.waiter.name : '', align: "LEFT", width: 0.25, bold: true },
+                { text: table.waiter ? (table.waiter.name ? table.waiter.name : '') : '', align: "LEFT", width: 0.25, bold: true },
             ]);
         printer.tableCustom(
             [
@@ -104,7 +104,7 @@ const printPreAccount = async ({ body }: Request, res: Response) => {
         printer.tableCustom(
             [
                 { text: "MOZO:", align: "LEFT", width: 0.25 },
-                { text: table.waiter.name ? table.waiter.name : '', align: "LEFT", width: 0.25, bold: true },
+                { text: table.waiter ? (table.waiter.name ? table.waiter.name : '') : '', align: "LEFT", width: 0.25, bold: true },
             ]);
         printer.tableCustom(
             [
