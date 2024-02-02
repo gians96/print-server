@@ -47,15 +47,27 @@ const printCommand = async ({ body }: Request, res: Response) => {
                 { text: "PREPARA:", align: "LEFT", width: 0.25 },
                 { text: table.tag.name, align: "LEFT", width: 0.25, bold: true },
             ]);
+        printer.setTextNormal();
+
         printer.drawLine();
         printer.alignLeft();
-        printer.setTypeFontB();
+        // printer.setTypeFontB();
+
+        // printer.setTextNormal();
+        
+
         table.products.forEach((product, index) => {
-            printer.println((index + 1) + ") [" + product.quantity + "] " + product.name);
+        printer.setTextSize(1, 1);  //(ANCHO,ALTO)
+
+            // printer.println((index + 1) + ") [" + product.quantity + "] " + product.name);
+            printer.println("[" + product.quantity + "] " + product.name);
             if (product.note) {
                 printer.println("N: " + product.note);
             }
-            printer.newLine();
+            // printer.newLine();
+            printer.setTextNormal();
+            printer.drawLine();
+
         });
         printer.cut();
         try {
@@ -88,7 +100,7 @@ const printPreAccount = async ({ body }: Request, res: Response) => {
             if (isConnected) break
             await waitExcecute(50);
         }
-        printer.setTextDoubleHeight();                              // Set text to double height
+        printer.setTextDoubleHeight();
         printer.setTextDoubleWidth();
         printer.alignCenter();
         printer.println("PRECUENTA");
