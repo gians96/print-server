@@ -30,9 +30,9 @@ import { doc, onSnapshot } from "firebase/firestore";
 
 import { collection, query, where } from "firebase/firestore";
 
-const q = query(collection(db, "domain-client-printer"),
-  where("active", "==", true),
-  where("isConnect", "==", true));
+let url = process.env.url || ""
+const q = query(collection(db, "print-queue", url, "queue"),
+  where("isPrinted", "==", false));
 const unsubscribe = onSnapshot(q, (querySnapshot) => {
   querySnapshot.forEach((doc) => {
     console.log(doc.data());
@@ -41,3 +41,18 @@ const unsubscribe = onSnapshot(q, (querySnapshot) => {
   (error) => {
     console.error('Error al escuchar cambios en Firestore:', error);
   });
+
+// NEW CODE A PROBAR
+//   const q = query(collection(db, "print-queue", url, "queue"), where("isPrinted", "==", false));
+// const unsubscribe = onSnapshot(q, (querySnapshot) => {
+//   querySnapshot.forEach((doc) => {
+//     // Procesar la impresión
+//     imprimirDocumento(doc.data());
+    
+//     // Marcar el documento como impreso
+//     updateDoc(doc.ref, { isPrinted: true });
+//   });
+// },
+// (error) => {
+//   console.error('Error al escuchar cambios en Firestore:', error);
+// });
