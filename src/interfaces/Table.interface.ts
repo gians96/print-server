@@ -1,3 +1,13 @@
+import { Printer } from "./PrinterConfig.interface";
+
+export interface Queue {
+    configPrinter: Printer
+    date: Date
+    isPrinted: boolean
+    table: Table
+    typePrinted: "preaccount" | "command"
+}
+
 export interface Table {
     id: number;
     status: string;
