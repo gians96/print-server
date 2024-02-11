@@ -1,8 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import "dotenv/config";
-// TODO: Replace the following with your app's Firebase project configuration
-// See: https://support.google.com/firebase/answer/7015592
 const firebaseConfig = {
   apiKey: process.env.apiKey,
   authDomain: process.env.authDomain,
@@ -19,12 +17,6 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-
-//cuando tenemos id
-// const unsub = onSnapshot(doc(db, "domain-client-printer", "*"), (doc) => {
-//   console.log("Current data: ", doc.data());
-// });
-
 import { collection, query, where, setDoc } from "firebase/firestore";
 import { Queue } from "./interfaces/Table.interface";
 import {
@@ -40,6 +32,8 @@ interface ResponseService {
   msg: string;
 }
 let clientPrinterResponse: ConfigPrinter | undefined;
+
+//ESCUCHA ACTIVA DE CAMBIOS DE LA CONFIGURACION
 const restaurantDocRef = doc(collection(db, "domain-client-printer"), url);
 onSnapshot(restaurantDocRef, async (docSnapshot) => {
   // Aquí puedes manejar los datos del documento en tiempo real
@@ -48,7 +42,7 @@ onSnapshot(restaurantDocRef, async (docSnapshot) => {
   }
 });
 
-function waitExcecute(ms: number) {
+function waitExcecute(ms: number) {//FUNCION DE ESPERA
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 setInterval(async () => {
@@ -69,28 +63,36 @@ setInterval(async () => {
   }
 
   //PARA SABER LA CONECTIVDAD DE LAS IMPRESORAS
-  for (let index = 0; index < clientPrinterResponse?.printers.length; index++) {
-    let isResponse = await isConnectedPrintSrv(clientPrinterResponse?.printers[index]);
-    // console.log({ fireif: clientPrinterResponse.printers[index].isConnect, servif: isResponse.status });
-
-    if (clientPrinterResponse.printers[index].isConnect !== isResponse.status) {
-      isChangeValue = true;
-      clientPrinterResponse.printers[index].isConnect = isResponse.status
-    }
-  }//for
-
+  if (clientPrinterResponse?.printers.length !== 0) {
+    // console.log("no hay data");
+    for (let index = 0; index < clientPrinterResponse?.printers.length; index++) {
+      let isResponse = await isConnectedPrintSrv(clientPrinterResponse?.printers[index]);
+      // console.log({ fireif: clientPrinterResponse.printers[index].isConnect, servif: isResponse.status });
+      if (clientPrinterResponse.printers[index].isConnect !== isResponse.status) {
+        isChangeValue = true;
+        clientPrinterResponse.printers[index].isConnect = isResponse.status
+      }
+    }//for
+  }
   if (isChangeValue) {
-    console.log("Hubo un cambio");
     // await waitExcecute(500)
-    await setDoc(
-      doc(db, "domain-client-printer", url),
-      clientPrinterResponse
-    );
-    await waitExcecute(150)//Si no se ponia esto, se hacian dos peticiones, por cambiar el estado.
+    updateFirestore()
+    await waitExcecute(100)//Si no se ponia esto, se hacian dos peticiones, por cambiar el estado.
   }
   // }, 1000 * 60 * 5); // Ejecutar cada 5 minutos
 }, 5000); // Ejecutar cada 5 minutos
 
+async function updateFirestore() {
+  // console.log("CAMBIO");
+  const unsubscribe = onSnapshot(restaurantDocRef, async (docSnapshot) => {
+  });
+  // Update Firestore data
+  await setDoc(doc(db, "domain-client-printer", url), clientPrinterResponse);
+  // Subscribe again
+  unsubscribe();
+}
+
+//ESCUCHA ABIERTA PARA IMRPRIMIR
 const q = query(
   collection(db, "print-queue", url, "queue"),
   where("isPrinted", "==", false)
@@ -117,18 +119,3 @@ const unsubscribe = onSnapshot(
     console.error("Error al escuchar cambios en Firestore:", error);
   }
 );
-
-// NEW CODE A PROBAR
-//   const q = query(collection(db, "print-queue", url, "queue"), where("isPrinted", "==", false));
-// const unsubscribe = onSnapshot(q, (querySnapshot) => {
-//   querySnapshot.forEach((doc) => {
-//     // Procesar la impresión
-//     imprimirDocumento(doc.data());
-
-//     // Marcar el documento como impreso
-//     updateDoc(doc.ref, { isPrinted: true });
-//   });
-// },
-// (error) => {
-//   console.error('Error al escuchar cambios en Firestore:', error);
-// });
