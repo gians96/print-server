@@ -71,6 +71,7 @@ setInterval(async () => {
   //PARA SABER LA CONECTIVDAD DE LAS IMPRESORAS
   for (let index = 0; index < clientPrinterResponse?.printers.length; index++) {
     let isResponse = await isConnectedPrintSrv(clientPrinterResponse?.printers[index]);
+    // console.log({ fireif: clientPrinterResponse.printers[index].isConnect, servif: isResponse.status });
 
     if (clientPrinterResponse.printers[index].isConnect !== isResponse.status) {
       isChangeValue = true;
@@ -80,11 +81,12 @@ setInterval(async () => {
 
   if (isChangeValue) {
     console.log("Hubo un cambio");
+    // await waitExcecute(500)
     await setDoc(
       doc(db, "domain-client-printer", url),
       clientPrinterResponse
     );
-    await waitExcecute(100)//Si no se ponia esto, se hacian dos peticiones, por cambiar el estado.
+    await waitExcecute(150)//Si no se ponia esto, se hacian dos peticiones, por cambiar el estado.
   }
   // }, 1000 * 60 * 5); // Ejecutar cada 5 minutos
 }, 5000); // Ejecutar cada 5 minutos
@@ -98,7 +100,7 @@ const unsubscribe = onSnapshot(
   (querySnapshot) => {
     querySnapshot.forEach(async (doc) => {
       // console.log(doc.data());
-      let queue = doc.data();
+      let queue = doc.data() as Queue;
       let res;
       if (queue.typePrinted === "command") {
         res = await printCommandSrv(queue.configPrinter, queue.table);
