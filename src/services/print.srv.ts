@@ -11,11 +11,11 @@ const isConnectedPrintSrv = async (configPrinter: Printer) => {
         interface: 'tcp://' + configPrinter.ip
     });
     let isConnected = false
-    for (let i = 0; i < 4; i++) {
-        isConnected = await printer.isPrinterConnected();
-        if (isConnected) break
-        await waitExcecute(30);
-    }
+    isConnected = await printer.isPrinterConnected();
+    // for (let i = 0; i < 2; i++) {
+    //     if (isConnected) break
+    //     await waitExcecute(30);
+    // }
     if (!isConnected) { return { status: false, msg: "Impresora con ip: " + configPrinter.ip + " no encontrada." } }
 
     return { status: true, msg: "Impresora con ip: " + configPrinter.ip + " conectada." }

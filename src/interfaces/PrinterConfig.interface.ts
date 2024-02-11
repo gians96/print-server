@@ -4,6 +4,7 @@ export interface ConfigPrinter {
     isConnect: boolean;
     loadingConnect: boolean;
     printers: Printer[];
+    printerPreAccount: Printer
 }
 
 export interface Printer {
