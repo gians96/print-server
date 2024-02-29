@@ -10,6 +10,8 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./dist/app.js",
+    "start:fire": "node ./dist/fire.js",
+    "start:cron": "node ./dist/cron.js",
     "prisma": "npx prisma",
     "migrate-dev": "npx prisma migrate dev",
     "migrate-reset": "npx prisma migrate reset --preview-feature"
